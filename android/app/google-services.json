@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "684701619738",
+    "project_id": "fiberguardbharat-a4465",
+    "storage_bucket": "fiberguardbharat-a4465.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:684701619738:android:c90f4a3bdc163f089d23a3",
+        "android_client_info": {
+          "package_name": "com.example.fiberguardbharat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxBEdgmMnaf1i4VcE1I6f8tlC9SwqQ2CQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
