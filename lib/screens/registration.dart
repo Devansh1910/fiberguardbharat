@@ -80,6 +80,7 @@ class _RegistrationSellerState extends State<RegistrationSeller> {
   String selectedYear = '2023';
   String selectedState = 'Select Category';
   String selectsellers = 'Select Category';
+  late String Firstname,Lastname,PhoneNumber,Adhaarcard,Darofbirth,location,permanentaddress,category;
 
   @override
   Widget build(BuildContext context) {
@@ -180,6 +181,9 @@ class _RegistrationSellerState extends State<RegistrationSeller> {
                       child: TextField(
                         style: const TextStyle(
                             color: Colors.black), // Set text color to black
+                        onChanged: (value) {
+                          Firstname=value;
+                        },
                         decoration: InputDecoration(
                           labelText: 'Firstname',
                           labelStyle: const TextStyle(
@@ -214,6 +218,9 @@ class _RegistrationSellerState extends State<RegistrationSeller> {
                       child: TextField(
                         style: const TextStyle(
                             color: Colors.black), // Set text color to black
+                        onChanged: (value) {
+                          Lastname=value;
+                        },
                         decoration: InputDecoration(
                           labelText: 'Lastname',
                           labelStyle: const TextStyle(
@@ -285,8 +292,12 @@ class _RegistrationSellerState extends State<RegistrationSeller> {
                           FilteringTextInputFormatter.digitsOnly,
                           LengthLimitingTextInputFormatter(10),
                         ],
+                        onChanged: (value) {
+                          PhoneNumber=value;
+                        },
                         decoration: InputDecoration(
                           labelText: 'Phone number',
+
                           labelStyle: const TextStyle(
                             color: Color.fromRGBO(148, 148, 148, 1),
                             fontWeight: FontWeight.w500,
@@ -329,6 +340,9 @@ class _RegistrationSellerState extends State<RegistrationSeller> {
                     FilteringTextInputFormatter.digitsOnly,
                     LengthLimitingTextInputFormatter(12),
                   ],
+                  onChanged: (value) {
+                    Adhaarcard=value;
+                  },
                   decoration: InputDecoration(
                     labelText: 'Aadhar Card',
                     labelStyle: const TextStyle(
@@ -509,6 +523,7 @@ class _RegistrationSellerState extends State<RegistrationSeller> {
                                 onChanged: (String? newValue) {
                                   setState(() {
                                     selectedState = newValue!;
+                                    location=selectedState;
                                   });
                                 },
                                 items: states.map<DropdownMenuItem<String>>(
@@ -566,6 +581,9 @@ class _RegistrationSellerState extends State<RegistrationSeller> {
                         style: const TextStyle(
                             height: 5,
                             color: Colors.black), // Set text color to black
+                        onChanged: (value) {
+                          permanentaddress=value;
+                        },
                         decoration: InputDecoration(
                           labelText: 'Permanent Address',
                           labelStyle: const TextStyle(
@@ -628,6 +646,7 @@ class _RegistrationSellerState extends State<RegistrationSeller> {
                           setState(
                             () {
                               selectsellers = newValue!;
+                              category=selectsellers;
                             },
                           );
                         },
@@ -653,42 +672,73 @@ class _RegistrationSellerState extends State<RegistrationSeller> {
             const SizedBox(
               height: 8,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Pallete.mainColor,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(50),
-                        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: () {
+                    saveDataToFirestore();
+                  },
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Pallete.mainColor,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(50),
                       ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Register',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Colors.white),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(12.0),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Register',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
                           ),
                         ),
                       ),
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-            const SizedBox(
+            ],
+          ),
+        ),
+      const SizedBox(
               height: 50,
             ),
           ],
         ),
       ),
     );
+  }
+  Future<void> saveDataToFirestore() async {
+    try {
+      // Reference to Firestore collection
+      CollectionReference users = FirebaseFirestore.instance.collection('users');
+
+      // Data to be added
+      Map<String, dynamic> data = {
+        'name':Firstname,
+        'email':Lastname,
+        "Phone NUmber":PhoneNumber,
+        "Adhaarcard":Adhaarcard,
+        "Location":location,
+        "Permanent Address":permanentaddress,
+        "Category":category,
+      };
+
+      // Add the document
+      await users.add(data);
+
+
+      print('Data added to Firestore');
+    } catch (e) {
+      print('Error adding data to Firestore: $e');
+    }
   }
 }

@@ -1,11 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fiberguardbharat/theme/Pallete.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:routemaster/routemaster.dart';
 
+
+
 class LoginScreen extends StatelessWidget {
+
   LoginScreen({Key? key});
+  String? phone;
+
+
 
   void navigateToRegistrationSeller(BuildContext context) {
     Routemaster.of(context).push('/Registrationseller');
@@ -15,7 +22,9 @@ class LoginScreen extends StatelessWidget {
     Routemaster.of(context).push('/otpScreen');
   }
 
+
   @override
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -74,6 +83,10 @@ class LoginScreen extends StatelessWidget {
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(10),
                 ],
+
+                onChanged: (value) {
+    //Do something with the user input.
+               phone=value;} ,
                 decoration: InputDecoration(
                   labelText: 'Phone number',
                   labelStyle: const TextStyle(
@@ -100,38 +113,65 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(
               height: 8,
             ),
-            GestureDetector(
-              onTap: () {},
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color:
-                            Pallete.mainColor, // Change to your desired color
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(50),
-                        ),
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Login',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
+        ElevatedButton(
+          onPressed: () {
+            streambuilder();
+            showDialog(context: context, builder: (BuildContext context) {
+              return AlertDialog(
+                  title:const Text("OTP"),
+                  content: TextField(
+                    onChanged: (value){
+
+                    },
+                    keyboardType: TextInputType.number,
                   ),
-                ],
+                  actions:<Widget>[
+                    TextButton(onPressed:(){
+
+
+
+                      Navigator.of(context).pop(true);
+
+
+
+                    }, child: Text("verify"),
+
+                    ),
+
+
+                  ]
+              );
+            }
+            );
+            // Add your button action here
+
+          },
+          style: ElevatedButton.styleFrom(
+            primary: Pallete.mainColor, // Change to your desired color
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Text(
+              'Login',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.white,
               ),
             ),
-            const SizedBox(
+          ),
+        ),
+
+
+
+
+
+
+
+      const SizedBox(
               height: 8,
             ),
             GestureDetector(
@@ -175,5 +215,75 @@ class LoginScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+  Future<void> verifyPhoneNumber(String phoneNumber) async {
+    final PhoneVerificationCompleted verified = (AuthCredential authResult) {
+      // User has been automatically verified.
+      // You can sign them in here if needed.
+    };
+
+    final PhoneVerificationFailed verificationFailed =
+        (FirebaseAuthException authException) {
+      // Handle errors such as invalid phone numbers or too many attempts
+    };
+
+    final PhoneCodeSent codeSent =
+        (String verificationId, [int? forceResendingToken]) async {
+      // Store the verificationId somewhere and navigate to the OTP screen
+    };
+
+    final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
+        (String verificationId) {
+      // Auto retrieval time out, set up a manual way to verify the code
+    };
+
+    await FirebaseAuth.instance.verifyPhoneNumber(
+      phoneNumber: phoneNumber,
+      timeout: const Duration(seconds: 60),
+      verificationCompleted: verified,
+      verificationFailed: verificationFailed,
+      codeSent: codeSent,
+      codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
+    );
+  }
+
+// Verify the OTP code
+  Future<void> verifyOTP(String verificationId, String smsCode) async {
+    final AuthCredential credential = PhoneAuthProvider.credential(
+      verificationId: verificationId,
+      smsCode: smsCode,
+    );
+
+    try {
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      // User is signed in
+    } catch (e) {
+      // Handle sign-in errors
+    }
+  }
+  void streambuilder()  async{
+   try {
+
+      QuerySnapshot querySnapshot =await FirebaseFirestore.instance.collection('users').get();
+      if (querySnapshot.docs.isNotEmpty) {
+        querySnapshot.docs.forEach((doc) {
+          Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
+          print(data?['Phone NUmber']);
+
+
+          if (data?['Phone NUmber']==phone ){
+              verifyPhoneNumber("+918630670454");
+          }
+
+
+
+          // Access the time data
+        });
+      } else {
+        print('No documents found.');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
   }
 }
